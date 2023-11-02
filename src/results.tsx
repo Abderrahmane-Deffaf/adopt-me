@@ -3,7 +3,7 @@ import Pet from "./Pet";
 const Results = ({ pets }) => {
   return (
     <div className="search">
-      {pets.map((pet) => (
+      {pets?.map((pet) => (
         <Pet
           name={pet.name}
           animal={pet.animal}

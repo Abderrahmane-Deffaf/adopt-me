@@ -1,24 +1,27 @@
-import { useState, useContext } from "react";
+import { useState, useTransition } from "react";
 import useBreedList from "./useBreedList";
 import Results from "./results";
 import fetchSearch from "./fetchSearch";
 import { useQuery } from "@tanstack/react-query";
-import AdoptedPetContext from "./AdoptedPetContext";
+import {useSelector, useDispatch} from 'react-redux'
+import { all } from "./features/searchParams/searchParamsSlice";
+import { useGetSearchParamsQuery } from "./features/pets/petApiService";
 
 const ANIMALS = ["bird", "cat", "dog", "rabbit", "reptile"];
 
 const SearchParams = () => {
   const [animal, setAnimal] = useState("");
   const breeds = useBreedList(animal)[0];
-  const [requestParams, setRequestParams] = useState({
-    location: "",
-    animal: "",
-    breed: "",
-  });
-  const [adoptedPet] = useContext(AdoptedPetContext);
+  const dispatch = useDispatch() 
 
-  const results = useQuery(["search", requestParams], fetchSearch);
-  const pets = results?.data?.pets ?? [];
+  const searchParams = useSelector((state) => state.searchParams.value);  
+
+  const adoptedPet = useSelector((state)=>state.adoptPet.value) ; 
+
+  const [isPending, startTransition] = useTransition() ; 
+
+  //const results = useQuery(["search", searchParams], fetchSearch);
+  const { data: pets} = useGetSearchParamsQuery(searchParams) ; 
 
   return (
     <div className="search-params">
@@ -31,7 +34,9 @@ const SearchParams = () => {
             breed: formData.get("breed") ?? "",
             location: formData.get("location") ?? "",
           };
-          setRequestParams(obj);
+          startTransition(()=> {
+            dispatch(all(obj));
+          })
         }}
       >
         {adoptedPet ? (
@@ -71,7 +76,13 @@ const SearchParams = () => {
             ))}
           </select>
         </label>
-        <button>Submit</button>
+        {
+          isPending?(
+            <div>loading</div>
+          ): (
+            <button>Submit</button>
+          )
+        }
       </form>
       <Results pets={pets} />
     </div>
