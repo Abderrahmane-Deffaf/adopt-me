@@ -1,4 +1,3 @@
-import React from "react";
 import { createRoot } from "react-dom/client";
 import { useState, lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -46,5 +45,5 @@ const App = () => {
   );
 };
 
-const root = createRoot(document.getElementById("root"));
+const root = createRoot(document.getElementById("root") as HTMLElement);
 root.render(<App />);
